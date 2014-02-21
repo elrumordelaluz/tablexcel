@@ -15,7 +15,38 @@
     <link rel="stylesheet" href="stylesheets/ie.css">
     <![endif]-->
     <meta name="viewport" content="width=device-width, initial-scale=1, user-scalable=no">
-
+    <link href='http://fonts.googleapis.com/css?family=Anaheim' rel='stylesheet' type='text/css'>
+    <style type="text/css">
+      /* apply a natural box layout model to all elements */
+      *, *:before, *:after {
+        -moz-box-sizing: border-box; -webkit-box-sizing: border-box; box-sizing: border-box;
+      }
+      html { height: 100%; }
+      body { 
+        margin: 0; ù
+        padding: 0;
+        height: 100%; 
+        font-family: 'Anaheim', sans-serif;
+      }
+  
+      #output, #preview, #input { width: 100%; display: block; height: 40%; border:none; font-family: 'Anaheim', sans-serif;}
+      #input {
+        height: 20%; 
+        background-color: #7a9a95;
+        -webkit-transition:background-color 250ms;
+        -moz-transition:background-color 250ms;
+        transition:background-color 250ms;
+        text-align: center;
+        font-size: 20px;
+      }
+      #output {
+        background-color: #e5e5e5;
+      }
+      #input:focus {
+        background-color: #90c5a9;
+      }
+      #preview { text-align: center;}
+    </style>
   </head>
   <body>
       <div id="header">
@@ -42,10 +73,75 @@
 <a name="tablexcel" class="anchor" href="#tablexcel"><span class="octicon octicon-link"></span></a>tablexcel</h1>
 
 <p>Convert Excel tables in HTML code</p>
+        <article class="demo">
+          <input type=text id="input" value="Click here to start!" readonly="readonly"/>
+          <textarea id="output" onclick="this.focus();this.select()" readonly="readonly"></textarea>
+          <iframe id="preview"></iframe>
+        </article>
       </section>
 
     </div>
     <!--[if !IE]><script>fixScale(document);</script><![endif]-->
     
+    
+    <!-- TablExcel Script -->
+    <script type="text/javascript">
+      (function(){
+        var textbox = document.getElementById("input");
+        
+        textbox.onfocus = function(){
+          this.value = 'Now paste the Excel table ';
+          this.style.backgroundColor="#90c5a9";
+        }
+
+        textbox.onblur = function(){
+          this.value = 'Click here to start';
+        }
+
+        textbox.onpaste = function(event) {
+          //console.error(event.clipboardData.getData('text/plain'));
+          //console.error(event.clipboardData.getData('text/html'));
+          var output = document.getElementById("output")
+          var preview = document.getElementById("preview")
+          var p = (preview.contentDocument || preview.contentWindow);
+          p = p.document || p;
+
+          // regexp
+          var toReg = event.clipboardData.getData('text/html');
+          console.log(toReg);
+          toReg = toReg.replace(/(\r\n|\n|\r)/gm,"");
+          var regstyle = /<STYLE*>.*<\/STYLE>/gi;
+          var reg = /<TABLE.*>.*<\/TABLE>/gi;
+          
+          var styleCode = toReg.match(regstyle);
+          var tableCode = toReg.match(reg);
+          var finalCode;
+          if(styleCode != null) {
+            finalCode = styleCode + tableCode;
+          } else {
+            finalCode = tableCode;
+          }
+          
+          
+          textbox.style.backgroundColor="#7a9a95";
+          output.focus();
+          
+          if(finalCode != null){
+            output.innerHTML = finalCode;
+            output.select();
+            output.style.textAlign="left";
+            textbox.value = 'Now simply CTRL+C to copy the code below, or click here to paste another table';
+            textbox.style.backgroundColor="#fa8b60";
+          } else {
+            output.innerHTML = "Sembra che non hai copiato una tabella Excel";
+            output.style.textAlign="center";
+          }
+          
+          // iframe
+          p.body.innerHTML = finalCode;
+          
+        };
+      })();
+    </script>
   </body>
 </html>
