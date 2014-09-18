@@ -1,4 +1,4 @@
 tablexcel
 =========
 
-Convert Excel tables in HTML code
+Convert Excel Tables in HTML.
